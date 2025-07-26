@@ -1,26 +1,12 @@
-; A simple enemy that seeks the player.
-; This scene defines the visual and collision representation for a mosquito
-; enemy. The accompanying script (mosquito.gd) contains the tracking and
-; collision logic.  The AnimatedSprite2D uses five frames from the
-; included monochrome tile set to give the mosquito a subtle animation.
+[gd_scene load_steps=11 format=3 uid="uid://17tcenuftyts"]
 
-[gd_scene load_steps=10 format=3]
+[ext_resource type="Script" uid="uid://qkn5go02aw2p" path="res://mosquito.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cmyw7fmkbaox3" path="res://monochrome_tilemap_transparent.png" id="1_texture"]
+[ext_resource type="AudioStream" uid="uid://u6lunqg0k84k" path="res://mosquito_buzz.ogg" id="3_s0ny3"]
 
-; External resources used by this scene.  The tile set provides the
-; graphics for the mosquito, and the script drives its behaviour.
-[ext_resource type="Texture2D" path="res://monochrome_tilemap_transparent.png" id="1_texture"]
-[ext_resource type="Script" path="res://mosquito.gd" id="1_script"]
-
-; The collision shape for the enemy.  A modest rectangle roughly
-; matching the size of the sprite ensures that the player and
-; environment interactions feel fair.
 [sub_resource type="RectangleShape2D" id="rect_shape"]
 size = Vector2(14, 14)
 
-; Five atlas textures taken from row 13 of the tile map (each cell is
-; 16×16 pixels separated by 1 pixel).  These frames depict a flying
-; insect and cycle to give the appearance of animation.  Adjust the
-; region values if you wish to change the look of the mosquito.
 [sub_resource type="AtlasTexture" id="AtlasTexture0"]
 atlas = ExtResource("1_texture")
 region = Rect2(0, 221, 16, 16)
@@ -41,9 +27,6 @@ region = Rect2(51, 221, 16, 16)
 atlas = ExtResource("1_texture")
 region = Rect2(68, 221, 16, 16)
 
-; The SpriteFrames resource groups the atlas textures into a looping
-; animation.  The speed determines how fast the frames cycle when
-; playing the "default" animation.
 [sub_resource type="SpriteFrames" id="SpriteFrames"]
 animations = [{
 "frames": [{
@@ -67,23 +50,16 @@ animations = [{
 "speed": 5.0
 }]
 
-; Root node for the enemy.  It is an Area2D to detect overlap with the
-; player.  The attached script contains the movement and collision
-; handling.
 [node name="Mosquito" type="Area2D"]
 script = ExtResource("1_script")
 
-; The collision shape defines how the mosquito interacts with other
-; physics bodies.  Its size roughly matches the sprite above.
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("rect_shape")
 
-; AnimatedSprite2D uses the SpriteFrames defined earlier to draw the
-; mosquito.  The default animation starts automatically and loops.
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames")
 
-; Connect the built-in body_entered signal to the script’s
-; _on_body_entered callback.  When the mosquito overlaps the
-; player, this method will be invoked.
+[node name="Buzz" type="AudioStreamPlayer" parent="AnimatedSprite2D"]
+stream = ExtResource("3_s0ny3")
+
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
