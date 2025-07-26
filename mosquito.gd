@@ -1,27 +1,47 @@
 extends Area2D
 
-var target = null
-var speed = 200
-var velocity = Vector2.ZERO
+@onready var anim: AnimatedSprite2D = $AnimatedSprite2D
+@onready var buzz: AudioStreamPlayer = $Buzz
 
-func _ready():
-    # Adding the mosquito to an "enemies" group makes it easier to
-    # reference all enemies at once (e.g. for cleanup or group
-    # interactions).  Other scripts can use get_tree().get_nodes_in_group()
-    # to access all enemies.
-    add_to_group("enemies")
+var target: Node2D
+var speed := 200.0
+var velocity := Vector2.ZERO
 
-func _physics_process(delta):
+func _ready() -> void:
+	var tex: Texture2D = load("res://mosquito_blue_sheet.png")
+	var frames := SpriteFrames.new()
+	frames.add_animation("default")
+	frames.set_animation_loop("default", true)
+
+	var frame_w := 16
+	var frame_h := 16
+	var count := 4  # number of frames in the sheet
+
+	for i in range(count):
+		var atlas := AtlasTexture.new()
+		atlas.atlas = tex
+		atlas.region = Rect2(i * frame_w, 0, frame_w, frame_h)
+		frames.add_frame("default", atlas)
+
+	anim.sprite_frames = frames
+	anim.play("default")
+
+func _physics_process(delta: float) -> void:
 	if target:
-		# Smooth "gravity-like" movement toward the player
-		var direction = (target.global_position - global_position).normalized()
-		velocity = velocity.move_toward(direction * speed, 400 * delta)
+		var dir := (target.global_position - global_position).normalized()
+		velocity = velocity.move_toward(dir * speed, 400.0 * delta)
 		global_position += velocity * delta
 
-func _on_body_entered(body):
-    if body and body.has_method("die"):
-        # Invoke the player's death routine when colliding with the
-        # mosquito.  After dealing damage the mosquito removes
-        # itself from the scene to prevent additional collisions.
-        body.die()
-        queue_free()
+		anim.flip_h = velocity.x < 0.0
+
+		anim.speed_scale = clamp(0.8 + velocity.length() / (speed * 2.0), 0.8, 1.4)
+
+		if buzz:
+			var d := global_position.distance_to(target.global_position)
+			buzz.volume_db = lerp(-24.0, -6.0, clamp(1.0 - d / 300.0, 0.0, 1.0))
+			if not buzz.playing: buzz.play()
+
+func _on_body_entered(body: Node) -> void:
+	if body and body.has_method("die"):
+		body.call_deferred("die")
+		queue_free()

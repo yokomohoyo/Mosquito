@@ -1,15 +1,22 @@
-# Godot 2D Platformer Starter Kit
+# Mosquito
 
-![Godot 2D Platformer Short](https://user-images.githubusercontent.com/928367/235163759-a4006cf2-a6b9-48d0-86c8-0efcaab9b9b1.gif)
+A fast 2D platformer built with Godot 4 where the player is chased by relentless mosquitoes. Includes three levels, music, SFX, and a main menu.
 
-Complete 2D platformer template made in Godot 4 with three levels, music, sfx, and a main menu. Ready for you to take and make an awesome game with.
+## Features
 
-- [🕹️ Play the Demo](https://brettchalupa.itch.io/godot-2d-platformer)
-- [📺 Watch the Tutorial](https://www.youtube.com/watch?v=FNEAJsry5sA)
+- Smooth “gravity-like” enemy tracking behavior for mosquitoes
+- Responsive player movement and jump
+- Gems, doors, HUD, and level transitions
+- Music and simple SFX
+
+## Getting Started
+
+1. Open the project in **Godot 4**.
+2. Run the main scene: `main_menu.tscn`.
 
 ## Credits
 
-- Template Code: [Brett Chalupa](https://www.brettchalupa.com) (CC0, dedicated to public domain)
-- Sprites: [1-Bit Platformer Pack by Kenney](https://kenney.nl/assets/1-bit-platformer-pack) (CC0)
-- Music: [Ted Kerr](https://opengameart.org/users/wolfgang) (CC-BY 4.0) - [8-Bit Theme](https://opengameart.org/content/8-bit-theme) & [8-Bit Quirky Waltz](https://opengameart.org/content/8-bit-quirky-waltz)
+- Base Template: [Brett Chalupa](https://www.brettchalupa.com) (CC0)
+- Sprites: [1‑Bit Platformer Pack by Kenney](https://kenney.nl/assets/1-bit-platformer-pack) (CC0)
+- Music: [Ted Kerr](https://opengameart.org/users/wolfgang) (CC‑BY 4.0) — [8‑Bit Theme](https://opengameart.org/content/8-bit-theme) & [8‑Bit Quirky Waltz](https://opengameart.org/content/8-bit-quirky-waltz)
 - Sound Effects: [jsfxr](https://sfxr.me/)

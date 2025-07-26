@@ -2,7 +2,7 @@ extends Node2D
 
 @export var level_num = 0
 
-var Mosquito = preload("res://mosquito.tscn")
+var Mosquito: PackedScene = preload("res://mosquito.tscn")
 
 func _ready():
 	$HUD.level(level_num)
@@ -28,21 +28,7 @@ func _input(event):
 
 
 func spawn_mosquito():
-    # Randomly spawn one or more mosquitos depending on the current
-    # level.  Higher levels spawn more enemies to gently ramp the
-    # difficulty.  This method randomizes the spawn points within a
-    # reasonable range so that mosquitos appear in different places
-    # each time the level is loaded or reset.
-    randomize()
-    var count := max(1, int(level_num) + 1)
-    for i in range(count):
-        var mosquito = Mosquito.instance()
-        # Choose a random position within the level bounds.  These
-        # values may be adjusted based on your level size.  The Y
-        # coordinate is clamped so that mosquitos spawn near the
-        # playable area rather than off-screen.
-        var x_pos := randf_range(100.0, 900.0)
-        var y_pos := randf_range(50.0, 450.0)
-        mosquito.global_position = Vector2(x_pos, y_pos)
-        mosquito.target = $Player
-        add_child(mosquito)
+	var mosquito = Mosquito.instantiate()
+	mosquito.global_position = Vector2(randi_range(100, 600), randi_range(100, 350))
+	mosquito.target = $Player
+	add_child(mosquito)
