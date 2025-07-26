@@ -4,7 +4,7 @@ extends Area2D
 @onready var buzz: AudioStreamPlayer = $"AnimatedSprite2D/Buzz"
 
 var target: Node2D
-var speed: float = 100.0
+var speed: float = 200.0
 var velocity: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
