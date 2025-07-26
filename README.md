@@ -1,6 +1,7 @@
 # Mosquito
 
 A fast 2D platformer built with Godot 4 where the player is chased by relentless mosquitoes. Includes three levels, music, SFX, and a main menu.
+Play a sample at : [On GH Pages](https://yokomohoyo.github.io/Mosquito/)
 
 ## Features
 
