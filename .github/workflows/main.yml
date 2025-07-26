@@ -1,0 +1,79 @@
+name: Export & Deploy (godot-ci → GitHub Pages)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: barichello/godot-ci:4.4.1   # Godot 4.4.1 editor baked in
+    steps:
+      - uses: actions/checkout@v4
+
+      # Ensure export templates are available at the *current user* HOME path.
+      # godot-ci often has them under /root; Godot looks under $HOME.
+      - name: Install export templates for user
+        shell: bash
+        run: |
+          set -eux
+          GODOT_VER=$(godot --version | awk '{print $1}' | cut -d. -f1-3)    # e.g. 4.4.1
+          USER_TPL="$HOME/.local/share/godot/export_templates/${GODOT_VER}.stable"
+          mkdir -p "$(dirname "$USER_TPL")"
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VER}.stable" ]; then
+            cp -r "/root/.local/share/godot/export_templates/${GODOT_VER}.stable" "$USER_TPL"
+          fi
+          if [ ! -d "$USER_TPL" ]; then
+            echo "Templates not bundled; downloading…"
+            curl -L -o /tmp/templates.tpz \
+              "https://github.com/godotengine/godot/releases/download/${GODOT_VER}-stable/Godot_v${GODOT_VER}-stable_export_templates.tpz"
+            mkdir -p /tmp/tpl && tar -xf /tmp/templates.tpz -C /tmp/tpl
+            mv /tmp/tpl/templates "$USER_TPL"
+          fi
+          ls -la "$HOME/.local/share/godot/export_templates/"*
+
+      # (Optional) Guardrail: turn off Threads in the Web preset if it’s accidentally on.
+      # Safe to skip if you already unchecked it in the editor.
+      - name: Force Threads Off in Web preset (optional)
+        if: ${{ always() }}
+        run: |
+          if [ -f export_presets.cfg ]; then
+            # crude but effective: replace "threads=true" with false
+            sed -i 's/threads=true/threads=false/g' export_presets.cfg || true
+          fi
+
+      - name: Export Web
+        run: |
+          mkdir -p build/web
+          godot -v --headless --export-release "Web" build/web/index.html
+          # Godot writes index.html, index.js, index.pck, index.wasm here
+
+      - name: Prepare Pages site
+        run: |
+          mkdir -p site
+          cp -r build/web/* site/
+          # Avoid Jekyll munging file names/paths
+          touch site/.nojekyll
+          # Optional: ensure correct casing for default entry
+          # mv site/index.html site/404.html || true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
