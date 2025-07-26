@@ -1,4 +1,4 @@
-name: Export Godot (container)
+name: Export Web
 on: [push, workflow_dispatch]
 
 jobs:
@@ -7,10 +7,33 @@ jobs:
     container: barichello/godot-ci:4.4.1
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install export templates for this user
+        run: |
+          set -eux
+          GODOT_VER=$(godot --version | awk '{print $1}' | cut -d. -f1-3)   # e.g. 4.4.1
+          USER_TEMPLATES="$HOME/.local/share/godot/export_templates/${GODOT_VER}.stable"
+          mkdir -p "$HOME/.local/share/godot/export_templates"
+
+          # Try to copy from templates bundled in the image (usually under /root)
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VER}.stable" ]; then
+            cp -r "/root/.local/share/godot/export_templates/${GODOT_VER}.stable" "$USER_TEMPLATES"
+          fi
+
+          # If not found, download templates for the exact version
+          if [ ! -d "$USER_TEMPLATES" ]; then
+            echo "Templates not bundled; downloading..."
+            curl -L -o /tmp/templates.tpz \
+              "https://github.com/godotengine/godot/releases/download/${GODOT_VER}-stable/Godot_v${GODOT_VER}-stable_export_templates.tpz"
+            mkdir -p /tmp/tpl && tar -xf /tmp/templates.tpz -C /tmp/tpl
+            mv /tmp/tpl/templates "$USER_TEMPLATES"
+          fi
+
       - name: Export Web
         run: |
           mkdir -p build/web
           godot -v --headless --export-release "Web" build/web/index.html
+
       - uses: actions/upload-artifact@v4
         with:
           name: web
